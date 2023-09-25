@@ -3,7 +3,7 @@ import { TextField, Button, Grid, Typography, Paper } from '@mui/material';
 import { Formik, Form, Field } from 'formik';
 import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
-
+import axios from 'axios';
 interface UserData {
     name: string;
     email: string;
@@ -20,32 +20,23 @@ const validationSchema = Yup.object().shape({
     name: Yup.string().required(),
     email: Yup.string().email('Invalid format email address').required(),
     password: Yup.string().required('Password is required'),
-});
+}).required()
 
 const Register: React.FC = () => {
-
     const navigate = useNavigate();
-    const handleRegister = async (values: UserData) => {
-        console.log(`Registration Success`, values)
-        const api = "https://mock-api.arikmpt.com/api/user/register"
-
-        try {
-            const response = await fetch (api, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(values)
+    const handleRegister = (values: UserData) => {
+        axios.post('https://mock-api.arikmpt.com/api/user/register', {
+                name: values.name,
+                email: values.email,
+                password: values.password,
             })
-            console.log(response)
-            const data = await response.json()
-
-            if (response.ok) {
-                navigate('/login')
-            } else {
-                alert(data.errors)
-            }
-        } catch (error) {alert ("Failed to Register")}
+            .then((response) => {
+                console.log('Registration Success!', response.data)
+                navigate('/')
+            })
+            .catch((error) => {
+                console.log(error)
+            })
     }
     
     return (
