@@ -1,6 +1,5 @@
+import {Register, Login, Home} from './pages'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import { Register, Login, Home } from './pages'
-
 import './App.css'
 
 function App() {

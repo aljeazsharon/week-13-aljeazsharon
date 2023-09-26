@@ -1,49 +1,45 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Button, Card, TextField, MenuItem, Typography, CardContent} from '@mui/material';
-import { Formik, Form, Field } from 'formik';
+import { Button, Box, Container, Typography, TextField, MenuItem, DialogContent, Dialog} from '@mui/material'
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { Formik, Form, Field } from 'formik'
+import * as Yup from 'yup'
 import { useFetch } from '../../hooks'
-import axios from 'axios';
-import * as Yup from 'yup';
+import axios from 'axios'
+import Swal from 'sweetalert2'
 
-interface Category {
-    id?: string;
+interface DataCategory {
+    id?: number;
     name: string;
     is_active: boolean;
 }
 
-interface UserData {
-    name: string;
-    email: string;
-}
+const validationSchema = Yup.object().shape({
+    name: Yup.string().required(),
+    is_active: Yup.boolean().required()
+  })
 
 const initialValuesAdd = {
     name: '',
     is_active: true,
 }
 
-const validationSchema = Yup.object().shape({
-    id: Yup.string().required(),
-    name: Yup.string().required(),
-    is_active: Yup.boolean().required(),
-}).required()
-
 const Home: React.FC = () => {
-    const [create, setCreate] = useState<boolean>(false)
-    const [read, setRead]  = useState<Category[]>([])
-    const [update, setUpdate] = useState(false)
-    const [toUpdate, setToUpdate] = useState<Category|null>(null)
-    const [deleteCat, setDeleteCat] = useState(false)
-    const [toDelete, setToDelete] =  useState<Category|null>(null)
+    const [createData, setCreateData] = useState<boolean>(false)
+    const [updateData, setUpdateData] = useState(false)
+    const [deleteData, setDeleteData] = useState(false)
+    const [createRow, setCreateRow] = useState<DataCategory[]>([])
+    const [updateRow, setUpdateRow] = useState<DataCategory|null>(null)
+    const [deleteRow, setDeleteRow] = useState<DataCategory|null>(null)
 
-    const validate = sessionStorage.getItem('authToken')
+    const validate = sessionStorage.getItem('userToken')
     const navigate = useNavigate()
 
     if(!validate) {
         navigate('/')
     }
 
-    const {loading, error} = useFetch<Category[]>({
+    const { error } = useFetch<DataCategory[]>({
         url: 'https://mock-api.arikmpt.com/api/category',
         method: 'GET',
         headers: {
@@ -51,9 +47,7 @@ const Home: React.FC = () => {
         }
     })
 
-    useEffect(() => {
-        FetchData();
-    }, [])
+    useEffect(() => { FetchData() })
 
     const FetchData = () => {
         axios.get('https://mock-api.arikmpt.com/api/category', {
@@ -61,42 +55,50 @@ const Home: React.FC = () => {
                 Authorization: `Bearer ${validate}`
             }
         })
-        .then ((response) => {
+        .then((response) => {
             console.log('Success Get Data', response.data.data)
-            setRead(response.data.data)
+            setCreateRow(response.data.data)
         })
         .catch((error) => {
             console.log(error)
+            Swal.fire({
+                icon: 'error',
+                text: 'An error occurred during get. Please try again.'
+            })
         })
     }
-    const {data: UserData} = useFetch<UserData> ({
-        url: 'https://mock-api.arikmpt.com/api/user/profile',
-        method: 'GET',
-        headers: {
-            Authorization: `Bearer ${validate}`
-        }
-    })
 
-    const handleCreate = () => {
-        setCreate(true)
-        setCreate(false)
+    const handleCreateData = () => {
+        setCreateData(true)
     }
 
-    const handleUpdate = () => {
-        setToUpdate(null)
-        setUpdate(true)
+    const handleUpdateData = (row: DataCategory) => {
+        setUpdateRow(row)
+        setUpdateData(true)
     }
 
-    const handleDelete = () => {
-        setToDelete(null);
-        setDeleteCat(false)
-    };
+    const handleDeleteData = (row: DataCategory) => {
+        setDeleteRow(row)
+        setDeleteData(true)
+    }
 
-    const handleCreateCategory = (values: Category) => {
-        console.log("Add New Category")
-        const getData = read?.map((item) => item.name)
-        if(getData?.includes(values?.name)){
-            handleCreate()
+    const handleCloseData = () => {
+        setUpdateRow(null)
+        setDeleteRow(null)
+        setCreateData(false)
+        setUpdateData(false)
+        setDeleteData(false)
+    }
+
+    const handleCreateCategory = (values: DataCategory) => {
+        // console.log("Add New Category")
+        const getNewData = createRow?.map((item) => item.name);
+        if (getNewData?.includes(values?.name)) {
+            handleCloseData()
+            Swal.fire({
+                icon: 'error',
+                text: 'Failed to get data'
+            })
             return
         }
         axios.post('https://mock-api.arikmpt.com/api/category/create', {
@@ -108,114 +110,179 @@ const Home: React.FC = () => {
             }
         })
         .then((response) => {
-            handleCreate()
+            handleCloseData()
             console.log('Data Add Success', response.data)
+            Swal.fire({
+                icon: 'success',
+                title: 'New Data Category add!',
+            })
             FetchData()
         })
         .catch((error) => {
             console.log(error)
+            Swal.fire({
+                icon: 'error',
+                text: 'An error occurred during add new category. Please try again.',
+            })
         })
     }
 
     const handleUpdateCategory = () => {
         axios.put(`https://mock-api.arikmpt.com/api/category/update`, {
-            id: toUpdate?.id,
-            name: toUpdate?.name,
-            is_active: toUpdate?.is_active,
-        },{
-            headers: {
+            id: updateRow?.id,
+            name: updateRow?.name,
+            is_active: updateRow?.is_active,
+        },{ headers: {
                 Authorization: `Bearer ${validate}`
             }
         })
         .then((response) => {
-            handleUpdate()
+            handleCloseData()
             console.log('Data Update Success', response.data)
+            Swal.fire({
+                icon: 'success',
+                title: 'Data Updated!',
+            })
             FetchData()
         })
         .catch((error) => {
             console.log(error)
+            Swal.fire({
+                icon: 'error',
+                text: 'An error occurred during update data. Please try again.',
+            })
         })
     }
 
     const handleDeleteCategory = () => {
-        axios.delete(`https://mock-api.arikmpt.com/api/category/${toDelete?.id}`,{
-            headers: {
+        axios.delete(`https://mock-api.arikmpt.com/api/category/${deleteRow?.id}`,
+        { headers: {
                 Authorization: `Bearer ${validate}`
             }
         })
         .then ((response) => {
-            handleDelete()
+            handleCloseData()
             console.log('Data Deleted', response.data)
+            Swal.fire({
+                icon: 'success',
+                title: 'Data Deleted!'
+            })
             FetchData()
         })
         .catch((error) => {
             console.log(error)
+            Swal.fire({
+                icon: 'error',
+                text: 'An error occurred during deleting data. Please try again.',
+            })
         })
+    }
+
+    const columns: GridColDef[] = [
+        { field: 'id', headerName: 'ID', width: 300 },
+        { field: 'name', headerName: 'Name', width: 150},
+        { field: 'is_status', headerName: 'Status', width: 150, filterable: false,
+          renderCell: (params) => (<div>{params.row.is_active ? 'Active' : 'Inactive'}</div>)
+        },
+        {
+          field: 'action',
+          headerName: 'Action',
+          filterable: false,
+          sortable: false,
+          width: 200,
+          editable: true,
+          renderCell: (params) => (
+                <div>
+                    <Button variant='contained' color='primary' size='small' onClick={(e)=> {
+                            console.log(params.row)
+                            e.stopPropagation()
+                            handleUpdateData(params.row)}}>Edit</Button>
+                    <Button variant='contained' color='error' size='small' onClick={(e)=> {
+                            e.stopPropagation()
+                            handleDeleteData(params.row)}}>Delete</Button>
+                </div>
+            )
+        }
+    ]
+
+    // if (loading) {
+    //     return <div>Loading...</div>
+    // }
+
+    if (error) {
+        return <div>Error while fetching data...</div>
+    }
+
+    if (!validate) {
+        window.location.replace('/')
+    }
+
+    const handleLogout = () => {
+        sessionStorage.removeItem('userToken')
+        window.location.replace('/')
     }
 
     return (
         <>
-            <Formik initialValues={initialValuesAdd} validationSchema={validationSchema} onSubmit={handleCreateCategory}>
-               {({touched, errors}) => 
-                 <Form>
-                    <div className='Content-Category'>
-                        <Card>
-                             <CardContent className={'Category-content'}>
-                                <Typography sx={{ fontSize: 14 }}>Add Category</Typography>
-                                <Field as={TextField} type="text" name="name" label="Name" fullWidth margin="normal" error={touched.name && Boolean(errors.name)}></Field>
-                                <Field as={TextField} type="text" select name="is_active" label="Status" fullWidth margin="normal" error={touched.is_active && Boolean(errors.is_active)}></Field>
-                                <MenuItem value="true">Active</MenuItem>
-                                <MenuItem value="false">De-Active</MenuItem>
-                            </CardContent>
-                        </Card>
-                    </div>
-                    <Button variant='contained' color='primary' type='submit'>Save</Button>
-                </Form>
-               }
-            </Formik>
+        <Formik initialValues={initialValuesAdd} validationSchema={validationSchema} onSubmit={handleCreateCategory}>
+          {({errors, touched}) => (
+            <Dialog open={createData} onClose={handleCloseData}>
+              <Form>
+                <Typography>Add New Category</Typography>
+                <DialogContent>
+                  <Field type="text" as={TextField} name="name" label="Name" fullWidth error={touched.name && Boolean(errors.name)} helperText={touched.name && errors.name}></Field>
+                  <Field type="text" as={TextField} name="is_active" label="Status" select fullWidth error={touched.name && Boolean(errors.name)} helperText={touched.name && errors.name}>
+                    <MenuItem value="true">Active</MenuItem>
+                    <MenuItem value="false">Inactive</MenuItem>
+                  </Field>
+                  <Button onClick={handleCloseData}>Back</Button>
+                  <Button variant='contained' color='primary' type='submit'>Save</Button>
+                </DialogContent>
+              </Form>
+            </Dialog>
+          )}
+        </Formik>
 
-            <Formik initialValues={initialValuesAdd} validationSchema={validationSchema} onSubmit={handleUpdateCategory}>
-                 <Form>
-                    <div className='Content-Category'>
-                        <Card>
-                             <CardContent className={'Category-content'}>
-                                <Typography sx={{ fontSize: 14 }}>Edit Category</Typography>
-                                <TextField label="Name" value={toUpdate?.name || ''}
-                                    onChange={(e) => {
-                                        if (toUpdate) {
-                                            setToUpdate({ ...toUpdate, name: e.target.value });
-                                        }
-                                    }} fullWidth> 
-                                </TextField>
+        <Dialog open={updateData} onClose={handleCloseData}>
+          <Typography>Update Category</Typography>
+          <DialogContent>
+            <TextField label="Name" value={updateRow?.name || ''} style={{ margin: '10px 0' }} fullWidth onChange={(e) => {if (updateRow) { setUpdateRow({ ...updateRow, name: e.target.value })}}}></TextField>
+            <TextField label="Status" select value={updateRow?.is_active ? 'Active' : 'Inactive'} style={{ margin: '10px 0' }} fullWidth onChange={(e) => {if (updateRow) { setUpdateRow({ ...updateRow, is_active: e.target.value === 'Active'})}}}>
+              <MenuItem value="Active">Active</MenuItem>
+              <MenuItem value="Inactive">Inactive</MenuItem>
+            </TextField>
+          </DialogContent>
+          <Button onClick={handleCloseData}>Back</Button>
+          <Button variant='contained' color='primary' onClick={()=>{handleUpdateCategory()}}>Update</Button>
+        </Dialog>
 
-                                <TextField label="Status" select value={toUpdate?.is_active ? 'active' : 'deactive'}
-                                    onChange={(e) => {
-                                        if (toUpdate) {
-                                            setToUpdate({ ...toUpdate, is_active: e.target.value === 'active' });
-                                        }
-                                    }} fullWidth>
-                                </TextField>
-                                <MenuItem value="true">Active</MenuItem>
-                                <MenuItem value="false">De-Active</MenuItem>
-                            </CardContent>
-                        </Card>
-                    </div>
-                    <Button variant='contained' color='primary' type='submit'>Save</Button>
-                </Form>
-            </Formik>
+        <Dialog open={deleteData} onClose={handleCloseData}>
+          <Typography>Delete Category</Typography>
+          <Button onClick={handleCloseData}>Back</Button>
+          <Button variant='outlined' color='error' onClick={()=>{handleDeleteCategory()}}>Delete</Button>
+        </Dialog>
+        
+        <Container fixed>
+        <Button variant='contained' color='secondary' onClick={handleCreateData}>Add New Category</Button>
+        <Button variant='contained' color='error' onClick={handleLogout}>Logout</Button>
+        </Container>
 
-            <Formik initialValues={initialValuesAdd} validationSchema={validationSchema} onSubmit={handleDeleteCategory}>
-                 <Form>
-                    <div className='Content-Category'>
-                        <Card>
-                             <CardContent className={'Category-content'}>
-                                <Typography sx={{ fontSize: 14 }}>Delete</Typography>
-                            </CardContent>
-                        </Card>
-                    </div>
-                    <Button variant='contained' color='error' onClick={() => handleDelete} type='submit'>Delete</Button>
-                </Form>
-            </Formik>
+        <Box sx = {{height: 400, width: '100%'}}>
+            <div>
+                {createRow ? (
+                <DataGrid rows={createRow} columns={columns} initialState={{ 
+                    pagination: {
+                        paginationModel: { 
+                            pageSize: 5 }
+                        }
+                    }}
+                    style={{ backgroundColor: '#fff' }}
+                    pageSizeOptions={[5]}
+                    />
+                    ) : (<div>No data.</div>)
+                }
+            </div>
+        </Box>
         </>
     )
 }
