@@ -208,10 +208,6 @@ const Home: React.FC = () => {
         }
     ]
 
-    // if (loading) {
-    //     return <div>Loading...</div>
-    // }
-
     if (error) {
         return <div>Error while fetching data...</div>
     }
