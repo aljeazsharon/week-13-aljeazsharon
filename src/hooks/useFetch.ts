@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import axios, { AxiosRequestConfig } from "axios"
 import { useEffect, useState, useCallback } from "react"
 
