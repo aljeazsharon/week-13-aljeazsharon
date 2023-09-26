@@ -229,8 +229,8 @@ const Home: React.FC = () => {
               <Form>
                 <Typography sx={{ fontSize: 14 }}>Add New Category</Typography>
                 <DialogContent>
-                  <Field type="text" as={TextField} name="name" label="Name" style={{ margin: '10px' }} fullWidth error={touched.name && Boolean(errors.name)} helperText={touched.name && errors.name}></Field>
-                  <Field type="text" as={TextField} name="is_active" label="Status" select style={{ margin: '10px' }} fullWidth error={touched.name && Boolean(errors.name)} helperText={touched.name && errors.name}>
+                  <Field type="text" as={TextField} name="name" label="Name" style={{ margin: '10px 0' }} fullWidth error={touched.name && Boolean(errors.name)} helperText={touched.name && errors.name}></Field>
+                  <Field type="text" as={TextField} name="is_active" label="Status" select style={{ margin: '10px 0' }} fullWidth error={touched.name && Boolean(errors.name)} helperText={touched.name && errors.name}>
                     <MenuItem value="true">Active</MenuItem>
                     <MenuItem value="false">Inactive</MenuItem>
                   </Field>
@@ -245,8 +245,8 @@ const Home: React.FC = () => {
         <Dialog open={updateData} onClose={handleCloseData}>
           <Typography>Update Category</Typography>
           <DialogContent>
-            <TextField label="Name" value={updateRow?.name || ''} style={{ margin: '10px' }} fullWidth onChange={(e) => {if (updateRow) { setUpdateRow({ ...updateRow, name: e.target.value })}}}></TextField>
-            <TextField label="Status" select value={updateRow?.is_active ? 'Active' : 'Inactive'} style={{ margin: '10px' }} fullWidth onChange={(e) => {if (updateRow) { setUpdateRow({ ...updateRow, is_active: e.target.value === 'Active'})}}}>
+            <TextField label="Name" value={updateRow?.name || ''} style={{ margin: '10px 0' }} fullWidth onChange={(e) => {if (updateRow) { setUpdateRow({ ...updateRow, name: e.target.value })}}}></TextField>
+            <TextField label="Status" select value={updateRow?.is_active ? 'Active' : 'Inactive'} style={{ margin: '10px 0' }} fullWidth onChange={(e) => {if (updateRow) { setUpdateRow({ ...updateRow, is_active: e.target.value === 'Active'})}}}>
               <MenuItem value="Active">Active</MenuItem>
               <MenuItem value="Inactive">Inactive</MenuItem>
             </TextField>
