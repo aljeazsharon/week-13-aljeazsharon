@@ -5,4 +5,4 @@
 2. User can Login
 3. User can CRUD Category
 ## Deployment
-on process
+Link Deployment: https://profound-fudge-390e18.netlify.app
