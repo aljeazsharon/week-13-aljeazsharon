@@ -23,7 +23,9 @@ const useFetch = <T>(options: AxiosRequestConfig): Props<T> => {
       .finally(() => { setLoading(false) })
   }, [options])
 
-  useEffect(() => { fetchData()});
+  useEffect(() => { 
+    fetchData()
+  }, []);
 
   return { data, loading, error };
 };

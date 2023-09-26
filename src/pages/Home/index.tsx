@@ -47,9 +47,11 @@ const Home: React.FC = () => {
         }
     })
 
-    useEffect(() => { FetchData() })
+    useEffect(() => { 
+        fetchData()
+      }, []);
 
-    const FetchData = () => {
+    const fetchData = () => {
         axios.get('https://mock-api.arikmpt.com/api/category', {
             headers: {
                 Authorization: `Bearer ${validate}`
@@ -91,7 +93,7 @@ const Home: React.FC = () => {
     }
 
     const handleCreateCategory = (values: DataCategory) => {
-        // console.log("Add New Category")
+        console.log("Add New Category")
         const getNewData = createRow?.map((item) => item.name);
         if (getNewData?.includes(values?.name)) {
             handleCloseData()
@@ -116,7 +118,7 @@ const Home: React.FC = () => {
                 icon: 'success',
                 title: 'New Data Category add!',
             })
-            FetchData()
+            fetchData()
         })
         .catch((error) => {
             console.log(error)
@@ -143,7 +145,7 @@ const Home: React.FC = () => {
                 icon: 'success',
                 title: 'Data Updated!',
             })
-            FetchData()
+            fetchData()
         })
         .catch((error) => {
             console.log(error)
@@ -167,7 +169,7 @@ const Home: React.FC = () => {
                 icon: 'success',
                 title: 'Data Deleted!'
             })
-            FetchData()
+            fetchData()
         })
         .catch((error) => {
             console.log(error)
@@ -226,12 +228,12 @@ const Home: React.FC = () => {
         <>
         <Formik initialValues={initialValuesAdd} validationSchema={validationSchema} onSubmit={handleCreateCategory}>
           {({errors, touched}) => (
-            <Dialog open={createData} onClose={handleCloseData}>
+            <Dialog style={{padding: '20px'}} open={createData} onClose={handleCloseData}>
               <Form>
-                <Typography>Add New Category</Typography>
+                <Typography sx={{ fontSize: 14 }}>Add New Category</Typography>
                 <DialogContent>
-                  <Field type="text" as={TextField} name="name" label="Name" fullWidth error={touched.name && Boolean(errors.name)} helperText={touched.name && errors.name}></Field>
-                  <Field type="text" as={TextField} name="is_active" label="Status" select fullWidth error={touched.name && Boolean(errors.name)} helperText={touched.name && errors.name}>
+                  <Field type="text" as={TextField} name="name" label="Name" style={{ margin: '15px' }} fullWidth error={touched.name && Boolean(errors.name)} helperText={touched.name && errors.name}></Field>
+                  <Field type="text" as={TextField} name="is_active" label="Status" select style={{ margin: '15px' }} fullWidth error={touched.name && Boolean(errors.name)} helperText={touched.name && errors.name}>
                     <MenuItem value="true">Active</MenuItem>
                     <MenuItem value="false">Inactive</MenuItem>
                   </Field>
@@ -246,8 +248,8 @@ const Home: React.FC = () => {
         <Dialog open={updateData} onClose={handleCloseData}>
           <Typography>Update Category</Typography>
           <DialogContent>
-            <TextField label="Name" value={updateRow?.name || ''} style={{ margin: '10px 0' }} fullWidth onChange={(e) => {if (updateRow) { setUpdateRow({ ...updateRow, name: e.target.value })}}}></TextField>
-            <TextField label="Status" select value={updateRow?.is_active ? 'Active' : 'Inactive'} style={{ margin: '10px 0' }} fullWidth onChange={(e) => {if (updateRow) { setUpdateRow({ ...updateRow, is_active: e.target.value === 'Active'})}}}>
+            <TextField label="Name" value={updateRow?.name || ''} style={{ margin: '15px' }} fullWidth onChange={(e) => {if (updateRow) { setUpdateRow({ ...updateRow, name: e.target.value })}}}></TextField>
+            <TextField label="Status" select value={updateRow?.is_active ? 'Active' : 'Inactive'} style={{ margin: '15px' }} fullWidth onChange={(e) => {if (updateRow) { setUpdateRow({ ...updateRow, is_active: e.target.value === 'Active'})}}}>
               <MenuItem value="Active">Active</MenuItem>
               <MenuItem value="Inactive">Inactive</MenuItem>
             </TextField>
@@ -261,7 +263,7 @@ const Home: React.FC = () => {
           <Button onClick={handleCloseData}>Back</Button>
           <Button variant='outlined' color='error' onClick={()=>{handleDeleteCategory()}}>Delete</Button>
         </Dialog>
-        
+
         <Container fixed>
         <Button variant='contained' color='secondary' onClick={handleCreateData}>Add New Category</Button>
         <Button variant='contained' color='error' onClick={handleLogout}>Logout</Button>
@@ -279,7 +281,7 @@ const Home: React.FC = () => {
                     style={{ backgroundColor: '#fff' }}
                     pageSizeOptions={[5]}
                     />
-                    ) : (<div>No data.</div>)
+                    ) : (<div>No Data Found.</div>)
                 }
             </div>
         </Box>
