@@ -1,29 +1,37 @@
-import {Register, Login, Home} from './pages'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import './App.css'
+import "./App.css";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { CategoryList, CategoryNew, CategoryEdit, Login, Register } from "./pages";
 
 function App() {
-
   const router = createBrowserRouter([
     {
-      path: '/',
-      element: <Login/>
+      path: "/",
+      element: <Login />,
     },
     {
-      path: '/register',
-      element: <Register/>
+      path: "/register",
+      element: <Register />,
     },
     {
-      path: '/home',
-      element: <Home/>
-    }
-  ])
+      path: "/category",
+      element: <CategoryList />,
+    },
+    {
+      path: "/category/new",
+      element: <CategoryNew />,
+    },
+    {
+      path: "/category/edit/:id",
+      element: <CategoryEdit />,
+    },
+    
+  ]);
 
   return (
     <>
-      <RouterProvider router={router} />
+      <RouterProvider router={router}></RouterProvider>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
