@@ -5,4 +5,4 @@
 2. User can Login
 3. User can CRUD Category
 ## Deployment
-Link Deployment: https://luxury-duckanoo-d1586d.netlify.app/
+Link Deployment: https://glowing-liger-611c60.netlify.app
